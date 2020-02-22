@@ -1,11 +1,9 @@
 [![Release](https://jitpack.io/v/jitpack/android-example.svg)](https://jitpack.io/#rommansabbir/CacheX/1.0-beta)
 # CacheX
-A feasible caching libarary for Android
+A feasible caching library for Android.
 
-## How it works?
-Caching is just a simple key value pair data saving procedure. CacheX follow the same approach. CacheX use SharedPreference as storage
-for caching data. Since, we really can't just save the original data because of security issue. CacheX uses AES encryption & decryption
-behind the scene when you are caching data or fetching data from cache. 
+## How does it work?
+Caching is just a simple key-value pair data saving procedure. CacheX follows the same approach. CacheX uses SharedPreference as storage for caching data. Since we really can't just save the original data because of security issues. CacheX uses AES encryption & decryption behind the scene when you are caching data or fetching data from the cache.
 
 ## Documentation
 
