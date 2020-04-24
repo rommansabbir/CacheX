@@ -1,3 +1,11 @@
 package com.rommansabbir.cachexdemo
 
-data class UserAuth(var username: String, var password: String)
+class UserAuth constructor() {
+    var username: String = ""
+    var password: String = ""
+
+    constructor(username: String, password: String) : this() {
+        this.username = username
+        this.password = password
+    }
+}

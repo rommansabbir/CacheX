@@ -4,15 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 
-class CacheXStorage(private var context: Context): CacheXCacheLogic{
+class CacheXStorage(private var context: Context) : CacheXCacheLogic {
+    private lateinit var mSharedPreferences: SharedPreferences
 
-    /**
-     * Save data to shared pref into key value pair
-     *
-     * @param data, data that need to be saved to shared pref in [String] format
-     * @param key, key that need to be used to save the passed [data] in [String] format
-     */
-    override fun doCache(data: String, key: String) {
+    override suspend fun doCache(data: String, key: String) {
         getSharedPref(context).edit {
             putString(key, data)
             apply()
@@ -30,6 +25,10 @@ class CacheXStorage(private var context: Context): CacheXCacheLogic{
         return getSharedPref(context).getString(key, null)
     }
 
+    override fun registerListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
+        this.mSharedPreferences.registerOnSharedPreferenceChangeListener(listener)
+    }
+
     /**
      * Provide Shared Preference reference
      *
@@ -37,13 +36,17 @@ class CacheXStorage(private var context: Context): CacheXCacheLogic{
      *
      * @return [SharedPreferences], it will return an [SharedPreferences] instance reference
      */
-    private fun getSharedPref(context: Context): SharedPreferences =
-        context.getSharedPreferences("CacheX", Context.MODE_PRIVATE)
+    private fun getSharedPref(context: Context): SharedPreferences {
+        mSharedPreferences = context.getSharedPreferences("CacheX", Context.MODE_PRIVATE)
+        return mSharedPreferences
+    }
+
 }
 
-interface CacheXCacheLogic{
-    fun doCache(data: String, key: String)
+interface CacheXCacheLogic {
+    suspend fun doCache(data: String, key: String)
     fun getCache(key: String): String?
+    fun registerListener(listener: SharedPreferences.OnSharedPreferenceChangeListener)
 }
 
 fun getEmitterException(message: String = "Emitter has been disposed") = Exception(message)
