@@ -16,7 +16,6 @@ class CacheXDataConverter {
         onSuccess.invoke(Gson().fromJson<T>(value, clazz))
     }
 
-
     private fun <T> getTypeToken() = object : TypeToken<List<T>>() {}.type
 
     suspend fun <T> fromJSONList(data: String, onSuccess: suspend (MutableList<T>) -> Unit) {

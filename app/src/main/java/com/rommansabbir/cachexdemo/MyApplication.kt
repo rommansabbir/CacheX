@@ -8,6 +8,6 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-//        CacheX.initializeComponents(encryptionKey)
+        CacheX.initializeComponents(this, encryptionKey)
     }
 }

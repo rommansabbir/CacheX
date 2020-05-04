@@ -5,7 +5,8 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 
 class CacheXStorage(private var context: Context) : CacheXCacheLogic {
-    private lateinit var mSharedPreferences: SharedPreferences
+    private var mSharedPreferences: SharedPreferences =
+        context.getSharedPreferences("CacheX", Context.MODE_PRIVATE)
 
     override suspend fun doCache(data: String, key: String) {
         getSharedPref(context).edit {
@@ -37,7 +38,6 @@ class CacheXStorage(private var context: Context) : CacheXCacheLogic {
      * @return [SharedPreferences], it will return an [SharedPreferences] instance reference
      */
     private fun getSharedPref(context: Context): SharedPreferences {
-        mSharedPreferences = context.getSharedPreferences("CacheX", Context.MODE_PRIVATE)
         return mSharedPreferences
     }
 

@@ -2,7 +2,6 @@ package com.rommansabbir.cachex.list
 
 import com.rommansabbir.cachex.CacheXCrypto
 import com.rommansabbir.cachex.CacheXDataConverter
-import com.rommansabbir.cachex.executeCoroutine
 import com.rommansabbir.cachex.storage.CacheXStorage
 
 
@@ -15,22 +14,15 @@ class CacheXListEncryptionImpl : CacheXListEncryption {
         onSuccess: suspend () -> Unit,
         onError: suspend (Exception) -> Unit
     ) {
-        executeCoroutine(
-            {
-                CacheXDataConverter().toJson(
-                    data
-                ) { it ->
-                    CacheXCrypto.encrypt(it) {
-                        xStorage.doCache(it, key)
-                        onSuccess.invoke()
-                    }
-
-                }
-            },
-            {
-                onError.invoke(it)
+        CacheXDataConverter().toJson(
+            data
+        ) { it ->
+            CacheXCrypto.encrypt(it) {
+                xStorage.doCache(it, key)
+                onSuccess.invoke()
             }
-        )
+
+        }
     }
 
     override suspend fun <T> decryptFromJSON(

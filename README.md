@@ -1,9 +1,15 @@
-[![Release](https://jitpack.io/v/jitpack/android-example.svg)](https://jitpack.io/#rommansabbir/CacheX/1.0-beta)
+[![Release](https://jitpack.io/v/jitpack/android-example.svg)](https://jitpack.io/#rommansabbir/CacheX)
 # CacheX
 A feasible caching library for Android.
 
+## Features
+* Real-time update
+* Lightweight
+* Secure
+* Thread Safe
+
 ## How does it work?
-Caching is just a simple key-value pair data saving procedure. CacheX follows the same approach. CacheX uses SharedPreference as storage for caching data. Since we really can't just save the original data because of security issues. CacheX uses AES encryption & decryption behind the scene when you are caching data or fetching data from the cache.
+Caching is just a simple key-value pair data saving procedure. CacheX follows the same approach. CacheX uses SharedPreference as storage for caching data. Since we really can't just save the original data because of security issues. CacheX uses AES encryption & decryption behind the scene when you are caching data or fetching data from the cache. Also, you can observer cached data in real-time.
 
 ## Documentation
 
@@ -31,9 +37,10 @@ Step 2. Add the dependency
 
 ### Version available
 
-| Releases        
+| Releases
 | ------------- |
 | 1.0-beta      |
+| 1.0           |
 
 # Usages
 ### Instantiate CacheX components in your app application class
@@ -47,11 +54,15 @@ Step 2. Add the dependency
     override fun onCreate() {
         ...
             // Initialize CacheX component by calling initializeComponents()  
-            // & pass encryption key for CacheX session.  
+            // pass context & encryption key for CacheX session.  
+            
             // This step is important!!
-            // Don't forget to call at initializeComponents() from application layer  
-            // otherwise, CacheX will throw a Runtime Exception
-            CacheX.initializeComponents(encryptionKey)
+            
+            // Don't forget to call at initializeComponents() from 
+            application layer otherwise, CacheX will not work properly and
+            will throw an exception.
+            
+            CacheX.initializeComponents(this, encryptionKey)
     }
 ````
 ---
@@ -64,11 +75,13 @@ Step 2. Add the dependency
             private val keySingle = "authKeySingle"
 
             // Instantiate CacheX reference by passing context as parameter
-            var cacheX = CacheX(this)
+            
+            var cacheX = CacheX.initCacheX()
 
-            // Define model (single item) /models (list of item) of data that you want to cache with AES encryption
+            // Define model (single item) /models (list of item) of data 
             // Behind the scene CacheX use SharedPref as storage for caching
             // data which is simply a key value pair data saving procedure
+           
             val model = SomeClass("romman", "testpass")
             val model1 = SomeClass("prottay", "testpass")
 ```
@@ -76,77 +89,121 @@ Step 2. Add the dependency
 
 ### Cache a single item or data model
 ````
-            // When you want cache a single item like, data model, string, numbers
-            // It better to use data model to wrapped multiple item into a single object
-            // rather than explicitly saving single items
-            cacheX.doCache(model, keySingle, object : CacheXSaveCallback {
-                override fun onSuccess() {
-                    //TODO
-                }
-
-                override fun onError(e: Throwable) {
-                    //TODO
-                }
-
-            })
+            // When you want cache a single item like, data model, string, 
+            numbers etc.
+            
+            // It better to use data model to wrapped multiple item into a 
+            single object rather than explicitly saving single item.
+            
+            // You can pass your own coroutine context otherwise CacheX will 
+            use it's own coroutine context
+            
+            cacheX.doCache(
+                dataModel,
+                keySingle,
+                {
+                	// Do your stuff on success
+                },
+                {
+                	// Do your stuff on error
+                })
 ````
 ---
 
 ### Fetch a single item from cache
 ````
-            // When you want to get from cache a single item like, data model, string, numbers
-            cacheX.getCache(SomeClass::class.java, keySingle, object : CacheXSingleGetCallback {
-                  override fun <T> onSuccess(data: T) {
-                        //Cast data to your specific data type since it return generic response
-                        //TODO
-                        showMessage((data as UserAuth).username)
-                  }
-
-                  override fun onError(e: Throwable) {
-                          //TODO
-                  }
-             })
+		// When you want to get from cache a single item like, data model, 
+        string, numbers
+        
+        // Now support, real-time updates on cache value updates, pass the 
+        lifecycle owner reference of your activity or fragment to get update 
+        on real-time for a specific key. You can also turn off the real-time 
+        update feature by providing **provideRealtimeUpdate** to **false**
+        
+		// You can pass your own coroutine context otherwise CacheX will use 
+        it's own coroutine context
+              
+              cacheX.getCache(
+              SomeClass::class.java,
+              keySingle,
+              this,
+              {
+                  // Do your stuff on success
+              },
+              {
+                  // Do your stuff on error
+              }
+          )
 ````
 ---
 
 ### Cache a list of items or data models
 ````
-            // When you want cache a list of items like, data model, string, numbers
-            // It better to use data model to wrapped multiple item into a single object
-            // rather than explicitly saving single items
-            cacheX.doCache(dataList, key, object : CacheXSaveCallback {
-                override fun onError(e: Throwable) {
-                    //TODO
-                }
-
-                override fun onSuccess() {
-                    for (item in dataList) {
-                        //Cast data to your specific data type since it return generic response
-                        //TODO
-                    }
-                }
-            })
+            // When you want cache a list of items like, data model, string, 
+            numbers
+            
+            // You can pass your own coroutine context otherwise CacheX will 
+            use it's own coroutine context
+            
+            cacheX.doCacheList(
+                dataList,
+                key,
+                {
+                	// Do your stuff on success
+                },
+                {
+                    // Do your stuff on error
+                })
 ````
 ---
 
 ### Fetch a list of  items from cache
 ````
-            // When you want to get from cache a list of items like, data model, strings, numbers
-            cacheX.getCache(SomeClass::class.java, key, object : CacheXListGetCallback {
-                override fun onError(e: Throwable) {
-                    showMessage(e.message.toString())
-                }
-
-                override fun <T> onSuccess(data: List<T>) {
-                    for (item in data) {
-                        //Cast data to your specific data type since it return generic response
-                        showMessage((item as UserAuth).username)
-                    }
-                }
-
-            })
+            // When you want to get from cache a list of items like, data
+            model, strings, numbers
+            
+			// Now support, real-time updates on cache value updates, pass
+            the lifecycle owner reference of your activity or fragment to
+            get update on real-time for a specific key. You can also turn
+            off the real-time update feature by providing
+            **provideRealtimeUpdate** to **false**
+        
+            // You can pass your own coroutine context otherwise CacheX
+            will use it's own coroutine context
+            
+        	cacheX.getCacheList<SomeClass>(
+            key,
+            this,
+            {
+                // Do your stuff on success
+            },
+            {
+                // Do your stuff on error
+            }
+        )
 ````
 
 ### Contact me
 [Portfolio](https://www.rommansabbir.com/) | [LinkedIn](https://www.linkedin.com/in/rommansabbir/) | [Twitter](https://www.twitter.com/itzrommansabbir/) | [Facebook](https://www.facebook.com/itzrommansabbir/)
+
+### License
+---
+[Apache Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
+
+````
+Copyright (C) 2020 Romman Sabbir
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+````
+
 

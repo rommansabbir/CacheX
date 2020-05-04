@@ -14,20 +14,12 @@ class CacheXSingleSingleEncryptionImpl : CacheXSingleEncryption {
         onSuccess: suspend () -> Unit,
         onError: suspend (Exception) -> Unit
     ) {
-        executeCoroutine(
-            {
-                CacheXCrypto.encrypt(
-                    CacheXDataConverter().toJson(data)
-                ) {
-                    xStorage.doCache(it, key)
-                    onSuccess.invoke()
-                }
-
-            },
-            {
-                onError.invoke(it)
-            }
-        )
+        CacheXCrypto.encrypt(
+            CacheXDataConverter().toJson(data)
+        ) {
+            xStorage.doCache(it, key)
+            onSuccess.invoke()
+        }
     }
 
     override suspend fun <T> decryptFromJSON(
@@ -37,24 +29,16 @@ class CacheXSingleSingleEncryptionImpl : CacheXSingleEncryption {
         onSuccess: suspend (T) -> Unit,
         onError: suspend (Exception) -> Unit
     ) {
-        executeCoroutine(
-            {
-                val data = xStorage.getCache(key)
-                if (data != null) {
-                    CacheXCrypto.decrypt(data) { it ->
-                        CacheXDataConverter().fromJSONSingle(it, clazz) {
-                            onSuccess.invoke(it)
-                        }
-                    }
-                } else {
-                    onError.invoke(Exception("No data found"))
+        val data = xStorage.getCache(key)
+        if (data != null) {
+            CacheXCrypto.decrypt(data) { it ->
+                CacheXDataConverter().fromJSONSingle(it, clazz) {
+                    onSuccess.invoke(it)
                 }
-            },
-            {
-                onError.invoke(it)
             }
-        )
-
+        } else {
+            onError.invoke(Exception("No data found"))
+        }
     }
 }
 
