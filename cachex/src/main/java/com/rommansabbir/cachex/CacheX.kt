@@ -196,6 +196,31 @@ class CacheX private constructor() {
         }
     }
 
+    fun clearCacheByKey(
+        key: String,
+        onSuccess: (String) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        val error = cache.clearCacheByKey(key)
+        if (error == null) {
+            onSuccess.invoke("Cache cleared successfully")
+        } else {
+            onError.invoke(error)
+        }
+    }
+
+    fun clearAllCache(
+        onSuccess: (String) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        val error = cache.clearAllCache()
+        if (error == null) {
+            onSuccess.invoke("Cache cleared successfully")
+        } else {
+            onError.invoke(error)
+        }
+    }
+
     companion object {
         private var encryptionKey = ""
         private var scope: CoroutineContext = Dispatchers.IO + Job()

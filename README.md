@@ -182,6 +182,28 @@ Step 2. Add the dependency
             }
         )
 ````
+### Clear a cache by key
+            
+        	cacheX.clearCacheByKey(
+            key,
+            {
+                // Do your stuff on success
+            },
+            {
+                // Do your stuff on error
+            }
+        )
+
+### Clear all cache
+            
+        	cacheX.clearAllCache(
+            {
+                // Do your stuff on success
+            },
+            {
+                // Do your stuff on error
+            }
+        )
 
 ### Contact me
 [Portfolio](https://www.rommansabbir.com/) | [LinkedIn](https://www.linkedin.com/in/rommansabbir/) | [Twitter](https://www.twitter.com/itzrommansabbir/) | [Facebook](https://www.facebook.com/itzrommansabbir/)
