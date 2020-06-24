@@ -39,9 +39,9 @@ Step 2. Add the dependency
 
 | Releases
 | ------------- |
-| 1.0-beta      |
 | 1.0           |
 | 1.0.1         |
+| 1.0.2         |
 
 # Usages
 ### Instantiate CacheX components in your app application class
