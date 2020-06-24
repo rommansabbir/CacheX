@@ -25,6 +25,10 @@ class CacheXStorage(private var context: Context) : CacheXCacheLogic {
 
     override fun clearCacheByKey(key: String): Exception? {
         val data = mSharedPreferences.getString(key, "")
+        mSharedPreferences.edit {
+            this.remove(key)
+            apply()
+        }
         return if (data.toString().isEmpty()) Exception("Key not found") else null
     }
 
