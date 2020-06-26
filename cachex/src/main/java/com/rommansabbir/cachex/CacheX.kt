@@ -148,6 +148,7 @@ class CacheX private constructor() {
     }
 
     fun <T> getCacheList(
+        clazz: Class<T>,
         key: String,
         lifecycleOwner: LifecycleOwner,
         onSuccess: (MutableList<T>) -> Unit,
@@ -155,17 +156,18 @@ class CacheX private constructor() {
         provideRealtimeUpdate: Boolean = true,
         coroutineContext: CoroutineContext? = null
     ) {
-        getCacheListMultiple(key, onSuccess, onError, coroutineContext)
+        getCacheListMultiple(clazz, key, onSuccess, onError, coroutineContext)
         if (provideRealtimeUpdate) {
             listenerLiveData.observe(lifecycleOwner, Observer {
                 if (it == key) {
-                    getCacheListMultiple(key, onSuccess, onError, coroutineContext)
+                    getCacheListMultiple(clazz, key, onSuccess, onError, coroutineContext)
                 }
             })
         }
     }
 
     private fun <T> getCacheListMultiple(
+        clazz: Class<T>,
         key: String,
         onSuccess: (MutableList<T>) -> Unit,
         onError: (Exception) -> Unit,
@@ -175,7 +177,8 @@ class CacheX private constructor() {
             CoroutineScope(coroutineContext ?: scope).launch {
                 executeCoroutine(
                     {
-                        cacheXListEncryptionImpl.decryptFromJSON<T>(
+                        cacheXListEncryptionImpl.decryptFromJSON(
+                            clazz,
                             key,
                             cache,
                             {

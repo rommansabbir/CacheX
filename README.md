@@ -42,6 +42,7 @@ Step 2. Add the dependency
 | 1.0           |
 | 1.0.1         |
 | 1.0.2         |
+| 1.0.3         |
 
 # Usages
 ### Instantiate CacheX components in your app application class
@@ -173,6 +174,7 @@ Step 2. Add the dependency
             will use it's own coroutine context
             
         	cacheX.getCacheList<SomeClass>(
+        	SomeClass::class.java
             key,
             this,
             {

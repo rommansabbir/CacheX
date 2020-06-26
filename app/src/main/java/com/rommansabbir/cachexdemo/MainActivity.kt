@@ -69,19 +69,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnDecrypt.setOnClickListener {
-
+            cacheX.getCacheList(
+                UserAuth::class.java,
+                key,
+                this,
+                {
+                    showMessage(it.size.toString())
+                },
+                {
+                    showMessage(it.message.toString())
+                }
+            )
         }
 
-        cacheX.getCacheList<UserAuth>(
-            key,
-            this,
-            {
-                showMessage(it.size.toString())
-            },
-            {
-                showMessage(it.message.toString())
-            }
-        )
 
     }
 
