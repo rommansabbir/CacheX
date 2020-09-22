@@ -37,176 +37,167 @@ Step 2. Add the dependency
 
 ### Version available
 
-| Releases
+| Latest Releases
 | ------------- |
-| 1.0           |
-| 1.0.1         |
-| 1.0.2         |
-| 1.0.3         |
+| 1.1.0         |
 
 # Usages
-### Instantiate CacheX components in your app application class
+## Instantiate CacheX components in your app application class
 
+**This step is important!!**
+
+Define an encryption key to instantiate CacheX components.
+This key will be used to encrypt or decrypt data using AES algorith
+Initialize CacheX component by calling initializeComponents()  
+pass context & encryption key for CacheX session.  
+
+Don't forget to call at initializeComponents() from 
+application layer otherwise, CacheX will not work properly and
+will throw an exception.
+            
 ````
-    // Define an encryption key to instantiate CacheX components.
-    // This key will be used to encrypt or decrypt data using AES algorith
-    
     private val encryptionKey = "!x@4#w$%f^g&h*8(j)9b032ubfu8238!"
-    ...
     override fun onCreate() {
-        ...
-            // Initialize CacheX component by calling initializeComponents()  
-            // pass context & encryption key for CacheX session.  
-            
-            // This step is important!!
-            
-            // Don't forget to call at initializeComponents() from 
-            application layer otherwise, CacheX will not work properly and
-            will throw an exception.
-            
             CacheX.initializeComponents(this, encryptionKey)
     }
 ````
 ---
 
-### Define key/keys & instantiate CacheX reference
+## Define key/keys & instantiate CacheX reference
+Define keys for single & list item
+Those keys will be used to cache data & fetch data
+````
+    private val key: String = "authKey"
+    private val keySingle = "authKeySingle"
+````
+
+Instantiate CacheX reference by passing context as parameter
+
+````
+    var cacheX = CacheX.initCacheX()
+````
+
+Define model (single item) /models (list of item) of data 
+Behind the scene CacheX use SharedPref as storage for caching
+data which is simply a key value pair data saving procedure
+            
 ```
-            // Define keys for single & list item
-            // Those keys will be used to cache data & fetch data
-            private val key: String = "authKey"
-            private val keySingle = "authKeySingle"
-
-            // Instantiate CacheX reference by passing context as parameter
-            
-            var cacheX = CacheX.initCacheX()
-
-            // Define model (single item) /models (list of item) of data 
-            // Behind the scene CacheX use SharedPref as storage for caching
-            // data which is simply a key value pair data saving procedure
-           
-            val model = SomeClass("romman", "testpass")
-            val model1 = SomeClass("prottay", "testpass")
+    val model = SomeClass("romman", "testpass")
+    val model1 = SomeClass("prottay", "testpass")
 ```
 ---
 
-### Cache a single item or data model
+## Cache a single item or data model
+When you want cache a single item like, data model, string, 
+numbers etc.
+
+It better to use data model to wrapped multiple item into a 
+single object rather than explicitly saving single item.
+
+You can pass your own coroutine context otherwise CacheX will 
+use it's own coroutine context
 ````
-            // When you want cache a single item like, data model, string, 
-            numbers etc.
-            
-            // It better to use data model to wrapped multiple item into a 
-            single object rather than explicitly saving single item.
-            
-            // You can pass your own coroutine context otherwise CacheX will 
-            use it's own coroutine context
-            
-            cacheX.doCache(
-                dataModel,
-                keySingle,
-                {
-                	// Do your stuff on success
-                },
-                {
-                	// Do your stuff on error
-                })
+    cacheX.doCache(
+        dataModel,
+        keySingle,
+        {
+            // Do your stuff on success
+        },
+        {
+            // Do your stuff on error
+        })
 ````
 ---
 
-### Fetch a single item from cache
-````
-		// When you want to get from cache a single item like, data model, 
-        string, numbers
+## Fetch a single item from cache
+When you want to get from cache a single item like, data model, string, numbers
         
-        // Now support, real-time updates on cache value updates, pass the 
-        lifecycle owner reference of your activity or fragment to get update 
-        on real-time for a specific key. You can also turn off the real-time 
-        update feature by providing **provideRealtimeUpdate** to **false**
+Now support, real-time updates on cache value updates, pass the 
+lifecycle owner reference of your activity or fragment to get update 
+on real-time for a specific key. You can also turn off the real-time 
+update feature by providing **provideRealtimeUpdate** to **false**
         
-		// You can pass your own coroutine context otherwise CacheX will use 
-        it's own coroutine context
-              
-              cacheX.getCache(
-              SomeClass::class.java,
-              keySingle,
-              this,
-              {
-                  // Do your stuff on success
-              },
-              {
-                  // Do your stuff on error
-              }
-          )
+You can pass your own coroutine context otherwise CacheX will use 
+it's own coroutine context
+```` 
+      cacheX.getCache(
+      SomeClass::class.java,
+      keySingle,
+      {
+          // Do your stuff on success
+      },
+      {
+          // Do your stuff on error
+      }
+    )
 ````
 ---
 
-### Cache a list of items or data models
+## Cache a list of items or data models
+When you want cache a list of items like, data model, string, 
+numbers
+
+You can pass your own coroutine context otherwise CacheX will 
+use it's own coroutine context
 ````
-            // When you want cache a list of items like, data model, string, 
-            numbers
-            
-            // You can pass your own coroutine context otherwise CacheX will 
-            use it's own coroutine context
-            
-            cacheX.doCacheList(
-                dataList,
-                key,
-                {
-                	// Do your stuff on success
-                },
-                {
-                    // Do your stuff on error
-                })
+    cacheX.doCacheList(
+        dataList,
+        key,
+        {
+            // Do your stuff on success
+        },
+        {
+            // Do your stuff on error
+        })
 ````
 ---
 
-### Fetch a list of  items from cache
-````
-            // When you want to get from cache a list of items like, data
-            model, strings, numbers
-            
-			// Now support, real-time updates on cache value updates, pass
-            the lifecycle owner reference of your activity or fragment to
-            get update on real-time for a specific key. You can also turn
-            off the real-time update feature by providing
-            **provideRealtimeUpdate** to **false**
-        
-            // You can pass your own coroutine context otherwise CacheX
-            will use it's own coroutine context
-            
-        	cacheX.getCacheList<SomeClass>(
-        	SomeClass::class.java
-            key,
-            this,
-            {
-                // Do your stuff on success
-            },
-            {
-                // Do your stuff on error
-            }
-        )
-````
-### Clear a cache by key
-            
-        	cacheX.clearCacheByKey(
-            key,
-            {
-                // Do your stuff on success
-            },
-            {
-                // Do your stuff on error
-            }
-        )
+## Fetch a list of  items from cache
+When you want to get from cache a list of items like, data
+model, strings, numbers
 
-### Clear all cache
+Now support, real-time updates on cache value updates, pass
+the lifecycle owner reference of your activity or fragment to
+get update on real-time for a specific key. You can also turn
+off the real-time update feature by providing
+**provideRealtimeUpdate** to **false**
+
+You can pass your own coroutine context otherwise CacheX
+will use it's own coroutine context
+````
+    cacheX.getCacheList<SomeClass>(
+    SomeClass::class.java
+    key,
+    {
+        // Do your stuff on success
+    },
+    {
+        // Do your stuff on error
+    }
+)
+````
+## Clear a cache by key
             
-        	cacheX.clearAllCache(
-            {
-                // Do your stuff on success
-            },
-            {
-                // Do your stuff on error
-            }
-        )
+    cacheX.clearCacheByKey(
+    key,
+    {
+        // Do your stuff on success
+    },
+    {
+        // Do your stuff on error
+    }
+)
+
+## Clear all cache
+            
+    cacheX.clearAllCache(
+    {
+        // Do your stuff on success
+    },
+    {
+        // Do your stuff on error
+    }
+)
 
 ### Contact me
 [Portfolio](https://www.rommansabbir.com/) | [LinkedIn](https://www.linkedin.com/in/rommansabbir/) | [Twitter](https://www.twitter.com/itzrommansabbir/) | [Facebook](https://www.facebook.com/itzrommansabbir/)

@@ -93,19 +93,21 @@ class CacheX private constructor() {
     fun <T> getCache(
         clazz: Class<T>,
         key: String,
-        lifecycleOwner: LifecycleOwner,
         onSuccess: (T) -> Unit,
         onError: (Exception) -> Unit,
+        lifecycleOwner: LifecycleOwner? = null,
         provideRealtimeUpdate: Boolean = true,
         coroutineContext: CoroutineContext? = null
     ) {
         getSingleCache(key, clazz, onSuccess, onError, coroutineContext)
-        if (provideRealtimeUpdate) {
-            listenerLiveData.observe(lifecycleOwner, Observer {
-                if (it == key) {
-                    getSingleCache(key, clazz, onSuccess, onError, coroutineContext)
-                }
-            })
+        if (lifecycleOwner != null) {
+            if (provideRealtimeUpdate) {
+                listenerLiveData.observe(lifecycleOwner, Observer {
+                    if (it == key) {
+                        getSingleCache(key, clazz, onSuccess, onError, coroutineContext)
+                    }
+                })
+            }
         }
     }
 
@@ -150,19 +152,21 @@ class CacheX private constructor() {
     fun <T> getCacheList(
         clazz: Class<T>,
         key: String,
-        lifecycleOwner: LifecycleOwner,
         onSuccess: (MutableList<T>) -> Unit,
         onError: (Exception) -> Unit,
+        lifecycleOwner: LifecycleOwner? = null,
         provideRealtimeUpdate: Boolean = true,
         coroutineContext: CoroutineContext? = null
     ) {
         getCacheListMultiple(clazz, key, onSuccess, onError, coroutineContext)
-        if (provideRealtimeUpdate) {
-            listenerLiveData.observe(lifecycleOwner, Observer {
-                if (it == key) {
-                    getCacheListMultiple(clazz, key, onSuccess, onError, coroutineContext)
-                }
-            })
+        if (lifecycleOwner != null) {
+            if (provideRealtimeUpdate) {
+                listenerLiveData.observe(lifecycleOwner, Observer {
+                    if (it == key) {
+                        getCacheListMultiple(clazz, key, onSuccess, onError, coroutineContext)
+                    }
+                })
+            }
         }
     }
 

@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         cacheX.getCache(
             String::class.java,
             keySingle,
-            this,
             {
                 showMessage(it)
             },
@@ -72,7 +71,6 @@ class MainActivity : AppCompatActivity() {
             cacheX.getCacheList(
                 UserAuth::class.java,
                 key,
-                this,
                 {
                     showMessage(it.size.toString())
                 },
