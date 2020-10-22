@@ -234,9 +234,9 @@ class CacheX private constructor() {
         private lateinit var cache: CacheXStorage
         private lateinit var cacheX: CacheX
 
-        fun initializeComponents(context: Context, key: String): Boolean {
+        fun initializeComponents(context: Context, key: String, appName: String): Boolean {
             this.encryptionKey = key
-            this.cache = CacheXStorage(context)
+            this.cache = CacheXStorage(context, appName)
             this.cache.registerListener(realtimeListener)
             return true
         }

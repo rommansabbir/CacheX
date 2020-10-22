@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 
-class CacheXStorage(private var context: Context) : CacheXCacheLogic {
+class CacheXStorage(private var context: Context, private var appName: String) : CacheXCacheLogic {
     private var mSharedPreferences: SharedPreferences =
-        context.getSharedPreferences("CacheX", Context.MODE_PRIVATE)
+        context.getSharedPreferences(appName, Context.MODE_PRIVATE)
 
     override suspend fun doCache(data: String, key: String) {
         getSharedPref().edit {

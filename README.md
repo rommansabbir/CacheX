@@ -39,7 +39,7 @@ Step 2. Add the dependency
 
 | Latest Releases
 | ------------- |
-| 1.1.0         |
+| 1.1.1         |
 
 # Usages
 ## Instantiate CacheX components in your app application class
@@ -58,7 +58,7 @@ will throw an exception.
 ````
     private val encryptionKey = "!x@4#w$%f^g&h*8(j)9b032ubfu8238!"
     override fun onCreate() {
-            CacheX.initializeComponents(this, encryptionKey)
+            CacheX.initializeComponents(this, encryptionKey, getString(R.string.app_name))
     }
 ````
 ---
