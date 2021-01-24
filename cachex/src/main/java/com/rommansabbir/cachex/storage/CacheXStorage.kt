@@ -1,58 +1,45 @@
 package com.rommansabbir.cachex.storage
 
-import android.content.Context
 import android.content.SharedPreferences
-import androidx.core.content.edit
 
-class CacheXStorage(private var context: Context, private var appName: String) : CacheXCacheLogic {
-    private var mSharedPreferences: SharedPreferences =
-        context.getSharedPreferences(appName, Context.MODE_PRIVATE)
-
-    override suspend fun doCache(data: String, key: String) {
-        getSharedPref().edit {
-            putString(key, data)
-            apply()
-        }
-    }
-
-    override fun getCache(key: String): String? {
-        return getSharedPref().getString(key, null)
-    }
-
-    override fun registerListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
-        this.mSharedPreferences.registerOnSharedPreferenceChangeListener(listener)
-    }
-
-    override fun clearCacheByKey(key: String): Exception? {
-        val data = mSharedPreferences.getString(key, "")
-        mSharedPreferences.edit {
-            this.remove(key)
-            apply()
-        }
-        return if (data.toString().isEmpty()) Exception("Key not found") else null
-    }
-
-    override fun clearAllCache(): Exception? {
-        return try {
-            mSharedPreferences.edit().clear().apply()
-            null
-        } catch (e: Exception) {
-            e
-        }
-    }
-
-    private fun getSharedPref(): SharedPreferences {
-        return mSharedPreferences
-    }
-
-}
-
-interface CacheXCacheLogic {
+interface CacheXStorage {
+    /**
+     * Cache single data.
+     *
+     * @param data The data which will be stored
+     * @param key The key to store the data
+     */
     suspend fun doCache(data: String, key: String)
-    fun getCache(key: String): String?
-    fun registerListener(listener: SharedPreferences.OnSharedPreferenceChangeListener)
-    fun clearCacheByKey(key: String): Exception?
-    fun clearAllCache(): Exception?
-}
 
-fun getEmitterException(message: String = "Emitter has been disposed") = Exception(message)
+    /**
+     * Get single stored data.
+     *
+     * @param key The which was used to store the data
+     *
+     * @return [String], Data can be null
+     */
+    suspend fun getCache(key: String): String?
+
+    /**
+     * Register listener to get notified on data changes.
+     *
+     * @param listener Listener to listen to the changes
+     */
+    fun registerListener(listener: SharedPreferences.OnSharedPreferenceChangeListener)
+
+    /**
+     * Clear stored data by following the respective key.
+     *
+     * @param key The which was used to store the data
+     *
+     * @return [Exception], Exception can be null
+     */
+    suspend fun clearCacheByKey(key: String): Exception?
+
+    /**
+     * Clear all stored data.
+     *
+     * @return [Exception], Exception can be null
+     */
+    suspend fun clearAllCache(): Exception?
+}

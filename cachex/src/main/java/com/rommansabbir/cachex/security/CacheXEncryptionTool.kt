@@ -1,6 +1,7 @@
-package com.rommansabbir.cachex
+package com.rommansabbir.cachex.security
 
 import android.util.Base64
+import com.rommansabbir.cachex.core.CacheXCore
 import java.security.GeneralSecurityException
 import java.security.SecureRandom
 import javax.crypto.Cipher
@@ -11,7 +12,7 @@ import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 
 
-object CacheXCrypto {
+object CacheXEncryptionTool {
     private const val ITERATION_COUNT = 1000
     private const val KEY_LENGTH = 256
     private const val PBKDF2_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA1"
@@ -20,49 +21,54 @@ object CacheXCrypto {
     private const val DELIMITER = "]"
     private val random = SecureRandom()
 
-    suspend fun encrypt(dataToEncrypt: String, onSuccess: suspend (String) -> Unit) {
+    /**
+     * Encrypt the given data.
+     *
+     * @param dataToEncrypt Data that need to be encrypted
+     *
+     * @return [String] Encrypted Data
+     */
+    fun encrypt(dataToEncrypt: String): String {
         val salt = generateSalt()
-        val key = deriveKey(CacheX.getKey(), salt)
+        val key = deriveKey(CacheXCore.getKey(), salt)
         val cipher = Cipher.getInstance(CIPHER_ALGORITHM)
         val iv = generateIv(cipher.blockSize)
         val ivParams = IvParameterSpec(iv)
         cipher.init(Cipher.ENCRYPT_MODE, key, ivParams)
         val cipherText = cipher.doFinal(dataToEncrypt.toByteArray(Charsets.UTF_8))
-        onSuccess.invoke(
-            if (salt != null) {
-                String.format(
-                    "%s%s%s%s%s",
-                    toBase64(salt),
-                    DELIMITER,
-                    toBase64(iv),
-                    DELIMITER,
-                    toBase64(cipherText)
-                )
-            } else String.format(
-                "%s%s%s",
-                toBase64(iv),
-                DELIMITER,
-                toBase64(cipherText)
-            )
+        return String.format(
+            "%s%s%s%s%s",
+            toBase64(salt),
+            DELIMITER,
+            toBase64(iv),
+            DELIMITER,
+            toBase64(cipherText)
         )
     }
 
-    suspend fun decrypt(dataToDecrypt: String, onSuccess: suspend (String) -> Unit) {
+    /**
+     * Decrypt the given data.
+     *
+     * @param dataToDecrypt Data that need to be encrypted
+     *
+     * @return [String] Decrypted Data
+     */
+    fun decrypt(dataToDecrypt: String): String {
         val fields =
             dataToDecrypt.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        require(fields.size == 3) { "Invalid encypted text format" }
+        require(fields.size == 3) { "Invalid encrypted text format" }
         val salt = fromBase64(fields[0])
         val iv = fromBase64(fields[1])
         val cipherBytes = fromBase64(fields[2])
-        val key = deriveKey(CacheX.getKey(), salt)
+        val key = deriveKey(CacheXCore.getKey(), salt)
         val cipher = Cipher.getInstance(CIPHER_ALGORITHM)
         val ivParams = IvParameterSpec(iv)
         cipher.init(Cipher.DECRYPT_MODE, key, ivParams)
         val plaintext = cipher.doFinal(cipherBytes)
-        onSuccess.invoke(String(plaintext, Charsets.UTF_8))
+        return String(plaintext, Charsets.UTF_8)
     }
 
-    private fun generateSalt(): ByteArray? {
+    private fun generateSalt(): ByteArray {
         val b = ByteArray(PKCS5_SALT_LENGTH)
         random.nextBytes(b)
         return b

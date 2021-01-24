@@ -1,7 +1,5 @@
 package com.rommansabbir.cachexdemo
 
-import java.util.*
-
 //class UserAuth constructor() {
 //    var username: String = ""
 //    var password: String = ""
@@ -12,4 +10,4 @@ import java.util.*
 //    }
 //}
 
-data class UserAuth(var username: String, var password: Date)
+data class UserAuth(var username: String, var password: String)

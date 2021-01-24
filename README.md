@@ -14,23 +14,24 @@ Caching is just a simple key-value pair data saving procedure. CacheX follows th
 ## Documentation
 
 ### Installation
+
 ---
 Step 1. Add the JitPack repository to your build file 
 
 ```gradle
-	allprojects {
-		repositories {
-			maven { url 'https://jitpack.io' }
-		}
-	}
+allprojects {
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+}
 ```
 
 Step 2. Add the dependency
 
 ```gradle
-	dependencies {
-	        implementation 'com.github.rommansabbir:CacheX:Tag'
-	}
+dependencies {
+    implementation 'com.github.rommansabbir:CacheX:Tag'
+}
 ```
 
 ---
@@ -39,7 +40,9 @@ Step 2. Add the dependency
 
 | Latest Releases
 | ------------- |
-| 1.1.1         |
+| 2.0           |
+
+---
 
 # Usages
 ## Instantiate CacheX components in your app application class
@@ -47,167 +50,123 @@ Step 2. Add the dependency
 **This step is important!!**
 
 Define an encryption key to instantiate CacheX components.
-This key will be used to encrypt or decrypt data using AES algorith
-Initialize CacheX component by calling initializeComponents()  
-pass context & encryption key for CacheX session.  
+This key will be used to encrypt or decrypt data using AES algorithm.
 
-Don't forget to call at initializeComponents() from 
+Initialize CacheX component by calling `CacheXCore.init()` pass contex, encryption key & app name for CacheX session.  
+
+Don't forget to call at `CacheXCore.init()` from 
 application layer otherwise, CacheX will not work properly and
 will throw an exception.
             
 ````
     private val encryptionKey = "!x@4#w$%f^g&h*8(j)9b032ubfu8238!"
+
     override fun onCreate() {
-            CacheX.initializeComponents(this, encryptionKey, getString(R.string.app_name))
+        super.onCreate()
+        CacheXCore.init(this, encryptionKey, getString(R.string.app_name))
+    }
+````
+
+---
+
+## How to access?
+
+Call `CacheXCore.getInstance()` to get reference of `CacheX` and you can access all public methods.
+
+---
+
+## Available public methods
+##### (Note: Most of the methods are `suspended` methods, so `suspened` methods must be called under a `CoroutineScope`)
+
+* `fun <T> cacheSingle(key: String, data: T): Either<Exception, Boolean>` - To cache single data and return either `Exception`
+ on error or `Boolean` on success.
+
+* `fun <T> getCacheSingle(key: String, clazz: Class<T>): Either<Exception, T>` - To get single cached data from `CacheX`
+based on the provided key and return `Exception` on error or `T` on success.
+
+* `fun <T> cacheList(key: String, data: List<T>): Either<Exception, Boolean>` - To cache a list of `POJO` or `DataModel` 
+and return either `Exception` on error or `Boolean` on success.
+
+* `fun <T> getCacheList(key: String, clazz: Class<T>): Either<Exception, ArrayList<T>>` - To get list of cached data from `CacheX`
+based on the provided key and return `Exception` on error or `ArrayList<T>` on success.
+
+* `fun registerListener(callback: CacheXCallback, key: String)` - Register a new listener to get notified on data changes
+based on the provided key.
+
+* `fun registerListener(callback: CacheXCallback, key: ArrayList<String>)` - Register a list of listeners to get notified on data changes
+based on the provided key list.
+
+* `fun unregisterListener(key: String)` - Unregister a listener based on the provided key.
+
+* `fun unregisterListener(key: ArrayList<String>)` - Unregister a list of listeners based on the provided key list.
+
+* `fun clearListeners()` - To clear all listeners
+
+* `fun clearCacheByKey(key: String): Exception?` - Clear a cache by the respective key which may `throw` `Exception`
+if happpened.
+
+* `fun clearAllCache(): Exception?` - Clear all cache which may `throw` `Exception` if happpened.
+
+---
+
+## How to use the callback to get notified on data changes?
+
+* Implement the callback to `Activity` or `Fragment` or `ViewModel`.
+````
+class MainViewModel : ViewModel(), CacheXCallback {
+    override fun onChanges(key: String) {
+        when (key) {
+            MainActivity.SINGLE_KEY -> {
+                getSingleFromCache(key)
+            }
+            MainActivity.LIST_KEY -> {
+                getListFromCache(key)
+            }
+        }
+    }
+
+    private fun getListFromCache(key: String) {...}
+
+    private fun cacheLSingle(key: String, data: String) {...}
+}
+````
+
+* Register a listener or list of listener from your `Activity` or `Fragment` `onResume()` method. In this example,
+I have implemented the callback on my respective view model. 
+````
+    override fun onResume() {
+        super.onResume()
+        CacheXCore.getInstance().registerListener(viewModel, arrayListOf(LIST_KEY, SINGLE_KEY))
+        //or 
+        CacheXCore.getInstance().registerListener(viewModel, LIST_KEY)
+    }
+````
+
+* To unregister a listener or list of listeners from your `Activity` or `Fragment` `onStop()` method.
+````
+    override fun onStop() {
+        CacheXCore.getInstance().unregisterListener(arrayListOf(LIST_KEY, SINGLE_KEY))
+        //or
+        CacheXCore.getInstance().unregisterListener(LIST_KEY)
+        super.onStop()
     }
 ````
 ---
 
-## Define key/keys & instantiate CacheX reference
-Define keys for single & list item
-Those keys will be used to cache data & fetch data
-````
-    private val key: String = "authKey"
-    private val keySingle = "authKeySingle"
-````
+##### Need more information regarding the solid implementation? - Check out the sample application.
 
-Instantiate CacheX reference by passing context as parameter
-
-````
-    var cacheX = CacheX.initCacheX()
-````
-
-Define model (single item) /models (list of item) of data 
-Behind the scene CacheX use SharedPref as storage for caching
-data which is simply a key value pair data saving procedure
-            
-```
-    val model = SomeClass("romman", "testpass")
-    val model1 = SomeClass("prottay", "testpass")
-```
 ---
-
-## Cache a single item or data model
-When you want cache a single item like, data model, string, 
-numbers etc.
-
-It better to use data model to wrapped multiple item into a 
-single object rather than explicitly saving single item.
-
-You can pass your own coroutine context otherwise CacheX will 
-use it's own coroutine context
-````
-    cacheX.doCache(
-        dataModel,
-        keySingle,
-        {
-            // Do your stuff on success
-        },
-        {
-            // Do your stuff on error
-        })
-````
----
-
-## Fetch a single item from cache
-When you want to get from cache a single item like, data model, string, numbers
-        
-Now support, real-time updates on cache value updates, pass the 
-lifecycle owner reference of your activity or fragment to get update 
-on real-time for a specific key. You can also turn off the real-time 
-update feature by providing **provideRealtimeUpdate** to **false**
-        
-You can pass your own coroutine context otherwise CacheX will use 
-it's own coroutine context
-```` 
-      cacheX.getCache(
-      SomeClass::class.java,
-      keySingle,
-      {
-          // Do your stuff on success
-      },
-      {
-          // Do your stuff on error
-      }
-    )
-````
----
-
-## Cache a list of items or data models
-When you want cache a list of items like, data model, string, 
-numbers
-
-You can pass your own coroutine context otherwise CacheX will 
-use it's own coroutine context
-````
-    cacheX.doCacheList(
-        dataList,
-        key,
-        {
-            // Do your stuff on success
-        },
-        {
-            // Do your stuff on error
-        })
-````
----
-
-## Fetch a list of  items from cache
-When you want to get from cache a list of items like, data
-model, strings, numbers
-
-Now support, real-time updates on cache value updates, pass
-the lifecycle owner reference of your activity or fragment to
-get update on real-time for a specific key. You can also turn
-off the real-time update feature by providing
-**provideRealtimeUpdate** to **false**
-
-You can pass your own coroutine context otherwise CacheX
-will use it's own coroutine context
-````
-    cacheX.getCacheList<SomeClass>(
-    SomeClass::class.java
-    key,
-    {
-        // Do your stuff on success
-    },
-    {
-        // Do your stuff on error
-    }
-)
-````
-## Clear a cache by key
-            
-    cacheX.clearCacheByKey(
-    key,
-    {
-        // Do your stuff on success
-    },
-    {
-        // Do your stuff on error
-    }
-)
-
-## Clear all cache
-            
-    cacheX.clearAllCache(
-    {
-        // Do your stuff on success
-    },
-    {
-        // Do your stuff on error
-    }
-)
 
 ### Contact me
 [Portfolio](https://www.rommansabbir.com/) | [LinkedIn](https://www.linkedin.com/in/rommansabbir/) | [Twitter](https://www.twitter.com/itzrommansabbir/) | [Facebook](https://www.facebook.com/itzrommansabbir/)
 
 ### License
+
 ---
 [Apache Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 ````
-Copyright (C) 2020 Romman Sabbir
+Copyright (C) 2021 Romman Sabbir
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
