@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
             it.let { arrayList ->
                 var dataFound = "List Update"
                 arrayList.forEach {
-                    dataFound += "${it}, "
+                    dataFound += "${it.username}, "
                 }
                 findViewById<TextView>(R.id.tv_list_update).text = dataFound
             }
@@ -47,10 +47,12 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnEncrypt).setOnClickListener {
             viewModel.scope.launch {
                 val list = arrayListOf<UserAuth>()
-                for (i in 0..Random.nextInt(0, 100)) {
-                    list.add(UserAuth(i.toString(), i.toString()))
+                for (i in 0..Random.nextInt(0, 10000)) {
+                    list.add(UserAuth(java.util.UUID.randomUUID().toString(), i.toString()))
                 }
-                viewModel.cacheList(LIST_KEY, list)
+                viewModel.cacheList(LIST_KEY, list) {
+                    showMessage(it)
+                }
             }
         }
 

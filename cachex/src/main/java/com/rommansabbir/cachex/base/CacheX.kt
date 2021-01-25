@@ -1,7 +1,10 @@
 package com.rommansabbir.cachex.base
 
 import com.rommansabbir.cachex.callback.CacheXCallback
-import com.rommansabbir.cachex.functional.Either
+import com.rommansabbir.cachex.usecase.GetListCacheUseCase
+import com.rommansabbir.cachex.usecase.GetSingleCacheUseCase
+import com.rommansabbir.cachex.usecase.ListCacheUseCase
+import com.rommansabbir.cachex.usecase.SingleCacheUseCase
 
 interface CacheX {
     /**
@@ -14,41 +17,32 @@ interface CacheX {
     val listenersList: HashMap<String, CacheXCallback>
 
     /**
-     * To cache a single data which is generic [T].
+     * To cache single data which is generic [T].
      *
      * First, encrypt the data and then cache the data by following the key.
      *
-     * @param key The key to cache the data which is [String]
-     * @param data The required data that need to be cached which is generic [T]
-     *
-     * @return Either<Exception, Boolean>
+     * @return SingleCacheUseCase<T>
      */
-    suspend fun <T> cacheSingle(key: String, data: T): Either<Exception, Boolean>
+    fun <T> cacheSingle(): SingleCacheUseCase<T>
 
     /**
-     * To get a single generic ([T]) cached data from the cache.
+     * To get single generic ([T]) cached data from the cache.
      *
      * First, get the data from the cache using the key,
      * then decrypt the data and return the data.
      *
-     * @param key The key which was used to cache the data
-     * @param clazz The data type which will be returned on success
-     *
-     * @return Either<Exception, T>
+     * @return GetSingleCacheUseCase<T>
      */
-    suspend fun <T> getCacheSingle(key: String, clazz: Class<T>): Either<Exception, T>
+    fun <T : Any> getCacheSingle(): GetSingleCacheUseCase<T>
 
     /**
      * To cache a list data which is generic [T].
      *
      * First, encrypt the data and then cache the data by following the key.
      *
-     * @param key The key to cache the data which is [String]
-     * @param data The required data that need to be cached which is generic [T]
-     *
-     * @return Either<Exception, Boolean>
+     * @return ListCacheUseCase<T>
      */
-    suspend fun <T> cacheList(key: String, data: List<T>): Either<Exception, Boolean>
+    fun <T> cacheList(): ListCacheUseCase<T>
 
     /**
      * To get a list of generics ([T]) cached data from the cache.
@@ -56,12 +50,9 @@ interface CacheX {
      * First, get the data from the cache using the key,
      * then decrypt the data and return the data.
      *
-     * @param key The key which was used to cache the data
-     * @param clazz The data type which will be returned on success
-     *
-     * @return Either<Exception, ArrayList<T>>
+     * @return GetListCacheUseCase<T>
      */
-    suspend fun <T> getCacheList(key: String, clazz: Class<T>): Either<Exception, ArrayList<T>>
+    fun <T : Any> getCacheList(): GetListCacheUseCase<T>
 
     /**
      * Register a listener to get notified on data changes.
@@ -102,15 +93,12 @@ interface CacheX {
      * Clear stored data by following the respective key.
      *
      * @param key The which was used to store the data
-     *
-     * @return [Exception], Exception can be null
      */
-    suspend fun clearCacheByKey(key: String): Exception?
+    fun clearCacheByKey(key: String)
 
     /**
      * Clear all stored data.
      *
-     * @return [Exception], Exception can be null
      */
-    suspend fun clearAllCache(): Exception?
+    fun clearAllCache()
 }

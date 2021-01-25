@@ -1,8 +1,11 @@
 package com.rommansabbir.cachex.base
 
 import com.rommansabbir.cachex.callback.CacheXCallback
-import com.rommansabbir.cachex.functional.Either
 import com.rommansabbir.cachex.storage.CacheXStorage
+import com.rommansabbir.cachex.usecase.GetListCacheUseCase
+import com.rommansabbir.cachex.usecase.GetSingleCacheUseCase
+import com.rommansabbir.cachex.usecase.ListCacheUseCase
+import com.rommansabbir.cachex.usecase.SingleCacheUseCase
 import com.rommansabbir.cachex.worker.CacheXWorkers
 
 class CacheXImpl constructor(
@@ -11,26 +14,21 @@ class CacheXImpl constructor(
 ) : CacheX {
     override val listenersList: HashMap<String, CacheXCallback> = HashMap()
 
-    override suspend fun <T> getCacheSingle(key: String, clazz: Class<T>): Either<Exception, T> {
-        return cacheXWorkers.getCacheSingle(key, clazz, cacheXStorage)
+
+    override fun <T> cacheSingle(): SingleCacheUseCase<T> {
+        return SingleCacheUseCase(cacheXWorkers, cacheXStorage)
     }
 
-    override suspend fun <T> getCacheList(
-        key: String,
-        clazz: Class<T>
-    ): Either<Exception, ArrayList<T>> {
-        return cacheXWorkers.getCacheList(key, clazz, cacheXStorage)
+    override fun <T : Any> getCacheSingle(): GetSingleCacheUseCase<T> {
+        return GetSingleCacheUseCase(cacheXWorkers, cacheXStorage)
     }
 
-    override suspend fun <T> cacheSingle(key: String, data: T): Either<Exception, Boolean> {
-        return cacheXWorkers.cacheSingle(key, data, cacheXStorage)
+    override fun <T> cacheList(): ListCacheUseCase<T> {
+        return ListCacheUseCase(cacheXWorkers, cacheXStorage)
     }
 
-    override suspend fun <T> cacheList(
-        key: String,
-        data: List<T>
-    ): Either<Exception, Boolean> {
-        return cacheXWorkers.cacheList(key, data, cacheXStorage)
+    override fun <T : Any> getCacheList(): GetListCacheUseCase<T> {
+        return GetListCacheUseCase(cacheXWorkers, cacheXStorage)
     }
 
     override fun registerListener(callback: CacheXCallback, key: String) {
@@ -57,11 +55,11 @@ class CacheXImpl constructor(
         listenersList.clear()
     }
 
-    override suspend fun clearCacheByKey(key: String): Exception? {
+    override fun clearCacheByKey(key: String) {
         return cacheXStorage.clearCacheByKey(key)
     }
 
-    override suspend fun clearAllCache(): Exception? {
+    override fun clearAllCache() {
         return cacheXStorage.clearAllCache()
     }
 }

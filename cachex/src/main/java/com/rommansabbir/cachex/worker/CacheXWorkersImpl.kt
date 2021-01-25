@@ -2,6 +2,7 @@ package com.rommansabbir.cachex.worker
 
 import com.google.gson.Gson
 import com.rommansabbir.cachex.converter.CacheXDataConverter
+import com.rommansabbir.cachex.exceptions.CacheXListLimitException
 import com.rommansabbir.cachex.exceptions.CacheXNoDataException
 import com.rommansabbir.cachex.functional.Either
 import com.rommansabbir.cachex.security.CacheXEncryptionTool
@@ -16,10 +17,14 @@ class CacheXWorkersImpl : CacheXWorkers {
         xCacheXStorage: CacheXStorage
     ): Either<Exception, Boolean> {
         return try {
+            if (data.size > 1000) {
+                return Either.Left(CacheXListLimitException("Max list size limit is: 1000"))
+            }
             xCacheXStorage.doCache(
                 CacheXEncryptionTool.encrypt(CacheXDataConverter().toJson(data)),
                 key
             )
+            println(Thread.currentThread())
             Either.Right(true)
         } catch (e: Exception) {
             Either.Left(e)

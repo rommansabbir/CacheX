@@ -40,7 +40,27 @@ dependencies {
 
 | Latest Releases
 | ------------- |
-| 2.0           |
+| 2.1.0         |
+
+---
+
+## What's new in this version?
+* Implementation of UseCase which interact between the app layer & library layer
+* CacheX works asynchronously
+* Performance Improved
+
+## What is UseCase & what its implementation?
+* Simply UseCase in an interactor between two layer to communicate with each others (If you know you about Android Clean Architecture, you must be familiar with UseCase. It is one of the core component of ACA)
+* UseCase take input from the respective thread and execute the whole operatin under a Background Thread & return the data on Main Thread
+
+### What about the implementation or the work flow?
+* Initialize CacheX properly
+* Get an instance of CacheX (Instance is singleton)
+* Call proper method to cahce data or get data from cache
+* Method return a respective use case
+* Provide the proper param to the use case & use case will return either expected data or an exception
+
+Simple, huh? (Feel free to give any suggestion, I would love to get suggestion for further improvement)
 
 ---
 
@@ -75,37 +95,31 @@ Call `CacheXCore.getInstance()` to get reference of `CacheX` and you can access 
 
 ---
 
+## What's the purpose of the UseCase?
+
 ## Available public methods
-##### (Note: Most of the methods are `suspended` methods, so `suspened` methods must be called under a `CoroutineScope`)
 
-* `fun <T> cacheSingle(key: String, data: T): Either<Exception, Boolean>` - To cache single data and return either `Exception`
- on error or `Boolean` on success.
+* `fun <T> cacheSingle(): SingleCacheUseCase<T>` - To cache single data which return an instance of `SingleCacheUseCase`
 
-* `fun <T> getCacheSingle(key: String, clazz: Class<T>): Either<Exception, T>` - To get single cached data from `CacheX`
-based on the provided key and return `Exception` on error or `T` on success.
+* `fun <T : Any> getCacheSingle(): GetSingleCacheUseCase<T>` - To get single data from cache which return an instance of `GetSingleCacheUseCase`
 
-* `fun <T> cacheList(key: String, data: List<T>): Either<Exception, Boolean>` - To cache a list of `POJO` or `DataModel` 
-and return either `Exception` on error or `Boolean` on success.
+* `fun <T> cacheList(): ListCacheUseCase<T>` - To cache list of data which return an instance of `ListCacheUseCase`
 
-* `fun <T> getCacheList(key: String, clazz: Class<T>): Either<Exception, ArrayList<T>>` - To get list of cached data from `CacheX`
-based on the provided key and return `Exception` on error or `ArrayList<T>` on success.
+* `fun <T : Any> getCacheList(): GetListCacheUseCase<T>` - To get list of cached data from cache which return an instance of `GetListCacheUseCase`
 
-* `fun registerListener(callback: CacheXCallback, key: String)` - Register a new listener to get notified on data changes
-based on the provided key.
+* `fun registerListener(callback: CacheXCallback, key: String)` - To register listener respective to a `Key` & notify the listener through the callback on data changes
 
-* `fun registerListener(callback: CacheXCallback, key: ArrayList<String>)` - Register a list of listeners to get notified on data changes
-based on the provided key list.
+* `fun registerListener(callback: CacheXCallback, key: ArrayList<String>)` - - To register list of listeners respective to a `Key List` & notify the listener through the callback on data changes
 
-* `fun unregisterListener(key: String)` - Unregister a listener based on the provided key.
+* `fun unregisterListener(key: String)` - Unregister any listener according to the respective key
 
-* `fun unregisterListener(key: ArrayList<String>)` - Unregister a list of listeners based on the provided key list.
+* `fun unregisterListener(key: ArrayList<String>)` - Unregister list of listeners according to the respective key list
 
-* `fun clearListeners()` - To clear all listeners
+* `fun clearListeners()` - Clear all listeners
 
-* `fun clearCacheByKey(key: String): Exception?` - Clear a cache by the respective key which may `throw` `Exception`
-if happpened.
+* `fun clearCacheByKey(key: String)` - Clear any cache by it's key
 
-* `fun clearAllCache(): Exception?` - Clear all cache which may `throw` `Exception` if happpened.
+* `fun clearAllCache()` - Clear all cache
 
 ---
 

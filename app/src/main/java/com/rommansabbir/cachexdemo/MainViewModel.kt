@@ -6,6 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rommansabbir.cachex.callback.CacheXCallback
 import com.rommansabbir.cachex.core.CacheXCore
+import com.rommansabbir.cachex.exceptions.CacheXListLimitException
+import com.rommansabbir.cachex.params.GetListParam
+import com.rommansabbir.cachex.params.GetSingleParam
+import com.rommansabbir.cachex.params.ListParam
+import com.rommansabbir.cachex.params.SingleParam
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,11 +47,26 @@ class MainViewModel : ViewModel(), CacheXCallback {
     }
 
 
-    fun cacheList(key: String, list: ArrayList<UserAuth>) {
+    fun cacheList(key: String, list: ArrayList<UserAuth>, onSuccess: (String) -> Unit) {
         scope.launch {
             CacheXCore
                 .getInstance()
-                .cacheList(key, list)
+                .cacheList<UserAuth>()
+                .invoke(ListParam(key, list)) { useCase ->
+                    useCase.either(
+                        {
+                            if (it is CacheXListLimitException) {
+                                print(it.thread)
+                                print(it.message)
+                            } else {
+                                println(it.message)
+                            }
+                        },
+                        {
+                            onSuccess.invoke("List Cached")
+                        }
+                    )
+                }
         }
     }
 
@@ -54,15 +74,15 @@ class MainViewModel : ViewModel(), CacheXCallback {
         scope.launch {
             CacheXCore
                 .getInstance()
-                .getCacheList(key, UserAuth::class.java)
-                .either(::onGetListFromCacheError, ::onGetListFromCacheSuccess)
+                .getCacheList<UserAuth>()
+                .invoke(GetListParam(key, UserAuth::class.java)) {
+                    it.either(::onGetListFromCacheError, ::onGetListFromCacheSuccess)
+                }
         }
     }
 
     private fun onGetListFromCacheSuccess(data: ArrayList<UserAuth>) {
-        viewModelScope.launch {
-            _onChangesList.value = data
-        }
+        _onChangesList.value = data
     }
 
     private fun onGetListFromCacheError(e: Exception) {
@@ -70,26 +90,36 @@ class MainViewModel : ViewModel(), CacheXCallback {
     }
 
     fun cacheLSingle(key: String, data: String) {
-        viewModelScope.launch {
-            CacheXCore
-                .getInstance()
-                .cacheSingle(key, data)
-        }
+        CacheXCore
+            .getInstance()
+            .cacheSingle<String>().invoke(
+                SingleParam(key, data)
+            ) { useCase ->
+                useCase.either(
+                    {
+                        println(it.message)
+                    },
+                    {
+                        println("Cached")
+                    }
+                )
+            }
     }
 
     private fun getSingleFromCache(key: String) {
         viewModelScope.launch {
             CacheXCore
                 .getInstance()
-                .getCacheSingle(key, String::class.java)
-                .either(::onGetSingleFromCacheError, ::onGetSingleFromCacheSuccess)
+                .getCacheSingle<String>().invoke(
+                    GetSingleParam(key, String::class.java)
+                ) {
+                    it.either(::onGetSingleFromCacheError, ::onGetSingleFromCacheSuccess)
+                }
         }
     }
 
     private fun onGetSingleFromCacheSuccess(data: String) {
-        viewModelScope.launch {
-            _onChangesSingle.value = data
-        }
+        _onChangesSingle.value = data
     }
 
     private fun onGetSingleFromCacheError(e: Exception) {

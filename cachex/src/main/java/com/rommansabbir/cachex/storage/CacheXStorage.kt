@@ -31,15 +31,12 @@ interface CacheXStorage {
      * Clear stored data by following the respective key.
      *
      * @param key The which was used to store the data
-     *
-     * @return [Exception], Exception can be null
      */
-    suspend fun clearCacheByKey(key: String): Exception?
+    fun clearCacheByKey(key: String)
 
     /**
      * Clear all stored data.
      *
-     * @return [Exception], Exception can be null
      */
-    suspend fun clearAllCache(): Exception?
+    fun clearAllCache()
 }
